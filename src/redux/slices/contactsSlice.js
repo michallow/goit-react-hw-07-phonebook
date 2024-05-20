@@ -1,50 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {
-  fetchContacts,
-  addContact,
-  deleteContact,
-} from '../operations/operations';
-
-const handlePending = state => {
-  state.isLoading = true;
-};
-
-const handleRejected = (state, action) => {
-  state.isLoading = false;
-  state.error = action.payload;
-};
+import { nanoid } from 'nanoid';
+import { loadLocalStorage } from '../../utils/loadLocalStorage';
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState: {
-    contacts: [],
-    isLoading: false,
-    error: null,
+    contacts: loadLocalStorage(),
     filter: '',
   },
-  reducers: {},
-  extraReducers: {
-    [fetchContacts.pending]: handlePending,
-    [fetchContacts.rejected]: handleRejected,
-    [fetchContacts.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.contacts = action.payload;
-    },
+  reducers: {
+    addContact: (state, action) => {
+      const id = nanoid();
+      const name = action.payload.name;
+      const number = action.payload.number;
+      const contactList = [...state.contacts];
 
-    [addContact.pending]: handlePending,
-    [addContact.rejected]: handleRejected,
-    [addContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
-      state.contacts.push(action.payload);
+      if (
+        contactList.findIndex(
+          contact => name === contact.name
+        ) !== -1
+      ) {
+        alert(`${name} is already in contacts.`);
+      } else {
+        contactList.push({ name, id, number });
+      }
+      state.contacts = contactList;
     },
-
-    [deleteContact.pending]: handlePending,
-    [deleteContact.rejected]: handleRejected,
-    [deleteContact.fulfilled](state, action) {
-      state.isLoading = false;
-      state.error = null;
+    deleteContact: (state, action) => {
       const { id } = action.payload;
       state.contacts = state.contacts.filter(
         contact => contact.id !== id
@@ -54,3 +36,5 @@ const contactsSlice = createSlice({
 });
 
 export default contactsSlice.reducer;
+export const { addContact, deleteContact } =
+  contactsSlice.actions;
