@@ -3,24 +3,18 @@ import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
 import css from './ContactForm/ContactForm.module.css';
-import {
-  fetchContacts,
-  deleteContact,
-} from '../redux/operations/operations';
+import { fetchContacts, deleteContact } from '../redux/operations/operations';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  selectContacts,
-  selectFilters,
-} from '../redux/selectors/selectors';
+import { selectContacts, selectFilters } from '../redux/selectors/selectors';
 
 export const App = () => {
   const dispatch = useDispatch();
-  const { contacts } = useSelector(selectContacts);
-  const { filter } = useSelector(selectFilters);
+  const contacts = useSelector(selectContacts);
+  const filter = useSelector(selectFilters);
 
   useEffect(() => {
     dispatch(fetchContacts());
-  }, []);
+  }, [dispatch]); // Dodajemy `dispatch` do tablicy zależności
 
   const handleDelete = id => {
     dispatch(deleteContact(id));
@@ -30,9 +24,7 @@ export const App = () => {
     const filteredContactList =
       contacts &&
       contacts.filter(contact => {
-        return contact.name
-          .toLowerCase()
-          .includes(filter.toLowerCase());
+        return contact.name.toLowerCase().includes(filter.toLowerCase());
       });
     return filteredContactList;
   };
